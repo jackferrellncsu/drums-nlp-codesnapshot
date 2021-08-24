@@ -7,14 +7,28 @@ import sys, getopt
 import pickle
 
 #--------------------------Data Prep Helpers--------------------------------------------------#
+#Removes unecessary tags, i.e. -tl, fw-, etc.
+def fix_pos(tag):
+    if not tag: 
+        return None
+    s = tag.split("-")
+    if s[0] == 'fw':
+        return s[1]
+    else:
+        return s[0]
+
 #load in sentences df
 #Not put back together yet, in (pre-bert) token form
 def load_sentencesdf():
     raw_data = pd.read_csv("Data/brown.csv")
     sentences = raw_data["raw_text"].str.split(expand=True)
+
+    pos = sentences.apply(lambda x: x.str.rsplit("/").str[1])
+    pos = pos.applymap(lambda x: fix_pos(x))
+
     sentences = sentences.apply(lambda x: x.str.rsplit("/").str[0])
     sentences.insert(180, "mask_ind", None)
-    return sentences
+    return sentences, pos
 
 #Get index we will later mask, only called in 
 def get_mask_helper(row):
@@ -43,13 +57,13 @@ def mask_data(token_tensor, mask_inds):
 
 #Saves a list to a file in json format
 def save_alphas(alphas, filename):
-    path = "outs/" + filename
+    path = "Snapshot_Outs/OutFiles_mlm/" + filename
     with open(path, "w") as file:
         json.dump(alphas, file)
 
 #loads a list from .txt file in json format
 def load_cal_alphas(filename):
-    path = "outs/" + filename
+    path = "Snapshot_Outs/OutFiles_mlm/" + filename
     with open(path, "r") as file:
         loaded_vals = json.load(file)
     return loaded_vals
@@ -79,9 +93,9 @@ def command_line_seed(argv):
     return seed
     
 def save_obj(obj, name):
-    with open("outs/" + name + ".pkl", "wb") as f:
+    with open("Snapshot_Outs/OutFiles_mlm/" + name + ".pkl", "wb") as f:
         pickle.dump(obj, f, pickle.HIGHEST_PROTOCOL)
 
 def load_obj(name):
-    with open("outs/" + name + ".pkl", "rb") as f:
+    with open("Snapshot_Outs/OutFiles_mlm/" + name + ".pkl", "rb") as f:
         return pickle.load(f)
