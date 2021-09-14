@@ -57,13 +57,13 @@ def mask_data(token_tensor, mask_inds):
 
 #Saves a list to a file in json format
 def save_alphas(alphas, filename):
-    path = "Snapshot_Outs/OutFiles_mlm/" + filename
+    path = "out/out_mlm_results/" + filename
     with open(path, "w") as file:
         json.dump(alphas, file)
 
 #loads a list from .txt file in json format
 def load_cal_alphas(filename):
-    path = "Snapshot_Outs/OutFiles_mlm/" + filename
+    path = "out/out_mlm_results/" + filename
     with open(path, "r") as file:
         loaded_vals = json.load(file)
     return loaded_vals
@@ -93,9 +93,9 @@ def command_line_seed(argv):
     return seed
     
 def save_obj(obj, name):
-    with open("Snapshot_Outs/OutFiles_mlm/" + name + ".pkl", "wb") as f:
+    with open("out/out_mlm_results/" + name + ".pkl", "wb") as f:
         pickle.dump(obj, f, pickle.HIGHEST_PROTOCOL)
 
 def load_obj(name):
-    with open("Snapshot_Outs/OutFiles_mlm/" + name + ".pkl", "rb") as f:
+    with open("out/out_mlm_results/" + name + ".pkl", "rb") as f:
         return pickle.load(f)

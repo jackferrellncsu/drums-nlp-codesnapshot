@@ -1,15 +1,18 @@
 #!/bin/sh
-SEED=1
+SEED=0
 
 #Activate python env
 source .venv/Scripts/activate
 
 #Generates data into Data folder
-python src/RunFile_mlm_datapr.py -s $SEED
+python src/run_mlm_datapr.py -s $SEED
 
 #Runs MLM conf preds process:
 #Warning- Takes a very long time
-python src/RunFile_mlm_bert.py -s $SEED
+python src/run_mlm_bert.py -s $SEED
+
+#Processes results and produces graphs and report:
+python src/out_mlm.py
 
 ####################
 # The following line produces the trained BiLSTM model
