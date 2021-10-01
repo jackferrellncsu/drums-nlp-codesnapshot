@@ -1,153 +1,199 @@
 # Helper functions
 include("routine_blstm.jl")
 
-# Cleaned data
-include("datagen_blstm.jl")
-
-# Seed for random
+# Seed for random operations
 Random.seed!(24)
 
-# Loads in data from "datagen_blstm.jl"
-brown_data = datagen_blstm_res.blstm_data
-sent_tens_emb = get(brown_data, "sentence_tensor", 0)
-onehot_vecs = get(brown_data, "onehots", 0)
-unique_pos = get(brown_data, "unique_pos", 0)
+# Creates empty vectors to save results from model
+results = []
+all_nonconf = []
+nom_conf = []
 
-# Splits masked sentence embeddings and their corresponding one hot matrices
-# into test/train/calib
-temp_train, test, temp_train_class, test_class = SampleMats(sent_tens_emb,
-                                                                onehot_vecs)
-train, calib, train_class, calib_class = SampleMats(temp_train,
-                                                            temp_train_class)
+# For loop that iterates through 5 different data splits
+for i in 1:5
 
-# Creates DataLoader classes
-dl_calib = Flux.Data.DataLoader((calib, calib_class))
-dl_test = Flux.Data.DataLoader((test, test_class))
-dl_train = Flux.Data.DataLoader((train, train_class),
-                                    batchsize = 100, shuffle = true)
+    # -------------------------- Dealing With Data -------------------------- #
 
-# Neural net architecture
-forward = LSTM(300, 150)
-backward = LSTM(300, 150)
-embedding = Dense(300, 300)
-predictor = Chain(Dropout(0.2, dims=1), Dense(300, 250, relu),
-                                                Dense(250,190), softmax)
+    # Read in raw data
+    brown_raw = CSV.read("Data/brown_pos.csv", DataFrame)[!, i]
 
-# Predicts embedding for chosen word
-vectorizer(x) = embedding(BLSTM(x))
+    # Splits words in each sentence
+    raw_sentences = split.(brown_raw, " ")
 
-# Predicts POS tag based on vectorizer prediction
-model(x) = predictor(vectorizer(x))
+    # Finds unique POS tags, setences split by words, and the tags for each sentence
+    unique_pos, sentences, sentence_tags = data_cleaner(raw_sentences)
 
-# Optimizer
-opt = Flux.Optimiser(ExpDecay(0.01, 0.1, 1, 1e-4), RADAM())
+    # Creates a vector containing every word and finds the unique ones
+    words = get_word_vec(sentences)
+    unique_words = convert(Vector{String},unique(words))
 
-# Model parameters
-ps = Flux.params((forward, backward, embedding, predictor))
+    # Finds embeddings for each unique word and creates embedding dictionsary
+    embeddings_glove = load_embeddings(GloVe{:en},4, keep_words=Set(unique_words))
+    embtable = Dict(word=>embeddings_glove.embeddings[:,ii] for (ii,word) in
+                                                enumerate(embeddings_glove.vocab))
 
-# Trains the neural net, tracks loss progression
-epochs = 10
-traceY = []
-for i in ProgressBar(1:epochs)
-    Flux.reset!(forward)
-    Flux.reset!(backward)
-    Flux.train!(loss, ps, dl_train, opt)
-    for (x, y) in dl_train
-        push!(traceY, loss(x, y))
-        break
+    # Creates embeddings for every word in every sentence
+    sent_vec = sentence_embed(sentences, embtable)
+
+    # Creates onehot vectors for every word in every sentence, regarding the POS
+    onehot_vec = get_onehot(unique_pos, sentence_tags)
+
+    # Train/Test/Calib Split
+    train = sent_vec[1:45872]
+    train_class = onehot_vec[1:45872]
+    test = sent_vec[45873:51606]
+    test_class = onehot_vec[45873:51606]
+    calib = sent_vec[51607:end]
+    calib_class = onehot_vec[51607:end]
+
+    # Creates DataLoader classes
+    dl_calib = Flux.Data.DataLoader((calib, calib_class))
+    dl_test = Flux.Data.DataLoader((test, test_class))
+    dl_train = Flux.Data.DataLoader((train, train_class),
+                                        batchsize = 1000, shuffle = true)
+
+    # ---------------- Begin Training and Testing Model Loop ---------------- #
+
+    # Model Architecture
+    forward = LSTM(300, 150)
+    backward = LSTM(300, 150)
+    predictor =  Chain(Dense(300, 250, relu), Dense(250, 190, x->x), softmax)
+
+    function BiLSTM(x)
+        Flux.reset!(forward)
+        Flux.reset!(backward)
+        fw_pred = forward.(x)
+        bw_pred = reverse(backward.(reverse(x)))
+        final_pred = vcat.(fw_pred, bw_pred)
+        return final_pred
     end
+
+    # Predicts embedding for chosen word
+    model(x) = predictor.(BiLSTM(x))
+
+    # Optimizer
+    opt = Flux.Optimiser(ExpDecay(0.01, 0.1, 1, 1e-4), RADAM())
+
+    # Model parameters
+    ps = Flux.params((forward, backward, predictor))
+
+    function loss(x, y)
+        l = 0
+        for i in length(x)
+            l += sum(Flux.Losses.crossentropy.(model(x[i]),y[i]))
+        end
+        return l
+    end
+
+    # Model Training
+    for i in ProgressBar(1:700)
+        Flux.train!(loss, ps, dl_train, opt)
+    end
+
+    # --------------------------- Model Analysis ---------------------------- #
+
+    # Calculates nonconformity scores for trained model on calibration set
+    α_i = find_nonconf_vals(calib, calib_class, model)
+
+    # Finds the actual POS onehots for each word and the p-values
+    act_pos, pvals = get_pvals(test, test_class, model, α_i)
+
+    # Finds model's prediction for chosen word's POS and actual POS for chosen word
+    args_mod, args_class = pred_class(test, test_class, model)
+
+    # ------------------------ Performance Criterion ------------------------ #
+
+    # Classification Accuracy
+    CA = class_accuracy(act_pos, pvals)
+
+    # Credibility
+    cred = credibility(pvals)
+
+    # Observed Perceptiveness and Observed Fuzziness
+    OP, OF = find_OP_OF(pvals, act_pos)
+
+    # Nominal confidence levels at each ϵ from 0.01 to 0.5 with step of 0.05
+    nominal = nominal_conf(pvals, act_pos)
+
+    # ----------------------- Stats for 99% Conf Sets ----------------------- #
+
+    acds_99 = find_ACDS(pvals, args_mod, args_class, .01)
+    pis_99 = find_PIS(pvals, .01)
+    sizes_99, ncrit_99 = avg_set_sizes(pvals, .01)
+    empconf_99 = empconf(pvals, act_pos, .01)
+
+    # ----------------------- Stats for 95% Conf Sets ----------------------- #
+
+    acds_95 = find_ACDS(pvals, args_mod, args_class, .05)
+    pis_95 = find_PIS(pvals, .05)
+    sizes_95, ncrit_95 = avg_set_sizes(pvals, .05)
+    empconf_95 = empconf(pvals, act_pos, .05)
+
+    # ----------------------- Stats for 99.9% Conf Sets ----------------------- #
+
+    acds_999 = find_ACDS(pvals, args_mod, args_class, .001)
+    pis_999 = find_PIS(pvals, .001)
+    sizes_999, ncrit_999 = avg_set_sizes(pvals, .001)
+    empconf_999 = empconf(pvals, act_pos, .001)
+
+    # ----------------------- Saving Model Results ----------------------- #
+
+    temp_results = []
+    push!(temp_results, acds_99, pis_99, ncrit_99, empconf_99,
+                        acds_95, pis_95, ncrit_95, empconf_95,
+                        acds_999, pis_999, ncrit_999, empconf_999,
+                        OP, OF, cred, CA, sizes_99, sizes_999)
+
+    push!(results, temp_results)
+
+    push!(all_nonconf, α_i)
+
+    push!(nom_conf, nominal)
+
 end
 
-# Stores parameters from trained model
-weights = []
-push!(weights, Flux.params(forward))
-push!(weights, Flux.params(backward))
-push!(weights, Flux.params(embedding))
-push!(weights, Flux.params(predictor))
+#= Remove comment if data is needed
 
-# -------- Ensuring that the model is recreated with updated params -------- #
+file_res = JLD.load("5split_output.jld")
+results = file_res["results"]
+all_nonconf = file_res["all_nonconf"]
+nom_conf = file_res["nom_conf"]
 
-# Sets the weights to the architecture
-load_parameters!(weights)
+=#
 
-# Rebuilds trained model
-vectorizer(x) = embedding(BLSTM(x))
-trained_model(x) = predictor(vectorizer(x))
+# --------------------- Preparing results for out file --------------------- #
 
-# --------------------------------------------------------------------------- #
-# -------------------------- Conformal Predictions -------------------------- #
-# --------------------------------------------------------------------------- #
+# Loads in criterion and set size results from training and testing loop
+criterion, sizes_ninety_nine, sizes_ninety_nine_nine = get_results(results)
 
-# Calculates nonconformity scores for trained model
-α_i = find_nonconf_vals(dl_calib, trained_model)
+# Loads in nominal confidence results from training and testing loop
+nominal_confidence, confs = get_nominal(nom_conf)
 
-# Finds the actual POS onehots for each word and the p-values
-actWords, pvals = test_blstm(dl_test, trained_model, α_i)
+# Loads in the nonconformity values from the 5th split of the train/test loop
+α_vals = all_nonconf[5]
 
-# Finds model's prediction for chosen word's POS and actual POS for chosen word
-args_mod, args_class = pred_class(dl_test, trained_model)
+# ----------------------- Saving results for out file ----------------------- #
 
-# -------------------------- Performance Criterion -------------------------- #
+# Stores plot requirements
+plot_requirements = Dict("α_i" => α_vals,
+                         "nominal" => nominal_confidence,
+                         "confs" => confs,
+                         "sizes_99" => sizes_ninety_nine,
+                         "sizes_999" => sizes_ninety_nine_nine)
 
-# Classification Accuracy
-CA = sum(argmax.(actWords) .== argmax.(pvals)) / length(pvals)
+# Stores "Table 1 (blstm)"
+t1_data = [(conf_level = "99.9%", emp_conf = criterion[12], acds = criterion[9],
+                           pis = criterion[10], N = criterion[11]),
+           (conf_level = "99%", emp_conf = criterion[4], acds = criterion[1],
+                                      pis = criterion[2], N = criterion[3]),
+           (conf_level = "95%", emp_conf = criterion[8], acds = criterion[5],
+                                      pis = criterion[6], N = criterion[7])]
 
-# Credibility
-cred = mean(maximum.(pvals))
+# Stores "Table 2 (blstm)"
+t2_data = [(CA = criterion[16], cred = criterion[15], OP = criterion[13],
+                                                            OF = criterion[14])]
 
-# Observed Perceptiveness and Observed Fuzziness
-OP, OF = find_OP_OF(pvals, actWords)
-
-# ---------------------- Stats for 99% confidence sets ---------------------- #
-
-global epsilon = .01
-
-acds_99 = find_ACDS(pvals, args_mod, args_class)
-pis_99 = find_PIS(pvals)
-sizes_99 = sum.(greatorVec.(pvals))
-ncrit_99 = mean(sizes_99)
-empconf_99 = mean(returnIndex.(pvals, argmax.(actWords)) .> epsilon)
-
-
-# ---------------------- Stats for 95% confidence sets ---------------------- #
-
-global epsilon = .05
-
-acds_95 = find_ACDS(pvals, args_mod, args_class)
-pis_95 = find_PIS(pvals)
-sizes_95 = sum.(greatorVec.(pvals))
-ncrit_95 = mean(sizes_95)
-empconf_95 = mean(returnIndex.(pvals, argmax.(actWords)) .> epsilon)
-
-# ---------------------- Stats for 90% confidence sets ---------------------- #
-
-global epsilon = .10
-
-acds_90 = find_ACDS(pvals, args_mod, args_class)
-pis_90 = find_PIS(pvals)
-sizes_90 = sum.(greatorVec.(pvals))
-ncrit_90 = mean(sizes_90)
-empconf_90 = mean(returnIndex.(pvals, argmax.(actWords)) .> epsilon)
-
-# --------------------- Saving all results for out file --------------------- #
-
-plot_requirements = Dict("α_i" => α_i,
-                         "pvals" => pvals,
-                         "actWords" => actWords,
-                         "sizes_99" => sizes_99,)
-
-# Table 1 (blstm)
-t1_data = [(conf_level = "99%", emp_conf = empconf_99, acds = acds_99,
-                                                                pis = pis_99),
-           (conf_level = "95%", emp_conf = empconf_95, acds = acds_95,
-                                                                pis = pis_95),
-           (conf_level = "90%", emp_conf = empconf_90, acds = acds_90,
-                                                                pis = pis_90)]
-
-# Table 2 (blstm)
-t2_data = [(CA = CA, cred = cred, OP = OP, OF = OF, N99 = ncrit_99,
-                                            N95 = ncrit_95, N90 = ncrit_90)]
-
+# Saves results and writes them to a JLD file for the out file to read in
 JLD.save("out/out_blstm_results/run_blstm_output.jld",
                                  "plot_requirements", plot_requirements,
                                  "t1_data", t1_data,
