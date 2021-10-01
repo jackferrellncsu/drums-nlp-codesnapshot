@@ -15,12 +15,12 @@ python src/run_mlm_bert.py -s $SEED
 python src/out_mlm.py
 
 ####################
-# The following line produces the trained BiLSTM model
-# Warning - Can take a long time (20-30 hours)
+# The following line produces the trained BiLSTM model along with the results
+# from testing the model on 5 different train/test splits (6-8 hours runtime)
 
 julia --project=. src/run_blstm.jl
 
 # The following line produces the "BiLSTM" portions of Tables 1 & 2, as well as
-# Figures 9, 10 and 11
+# Figures 5, 6 and 7
 
 julia --project=. src/out_blstm.jl
