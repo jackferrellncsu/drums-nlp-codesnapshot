@@ -22,7 +22,7 @@ def find_mask_ind(tokenized_sentence):
 
 #Input clean sentences.  
 #Words should already be masked.
-def conf_pred(sentence, model, conf, calib):
+def conf_pred(sentence, model, conf, calib, m_ind = -1):
     q_soft = numpy.quantile(calib, conf)
 
     conf_intervals = []
@@ -31,7 +31,9 @@ def conf_pred(sentence, model, conf, calib):
     input = tokenizer(sentence, return_tensors='pt')
 
     #Get index of masked word
-    m_ind = find_mask_ind(input)
+    if m_ind == -1:
+        m_ind = find_mask_ind(input)
+    
     outputs = model(**input)
 
     result_softmax = softmax(outputs.logits[0][m_ind]).tolist()
