@@ -3,7 +3,7 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 import random
 import sys, getopt
-import HelpFile_mlm as helper
+import routine_mlm as helper
 
 raw_data = pd.read_csv("Data/brown.csv")
 sentences = raw_data["raw_text"].str.split(expand = True)
