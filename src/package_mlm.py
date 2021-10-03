@@ -35,7 +35,7 @@ def generate_full_alphas(seed = 0):
     brown_data = pd.read_csv("Data/brown_master.csv", sep = "\t")
 
     train_cal, test = train_test_split(brown_data, test_size=0.25, shuffle=True)
-    train, cal = train_test_split(train_cal, test_size=0.25, shuffle=True)
+    train, cal = train_test_split(train_cal, test_size=0.08, shuffle=True)
 
     train_cal = None
     train = None

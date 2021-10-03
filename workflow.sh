@@ -1,17 +1,27 @@
 #!/bin/sh
 SEED=0
 
-#Activate python env
+#All python dependencies may be found in requirement.txt
+#All julia dependencies may be foind in Manifest.toml
+#Creates new environment called ".venv"
+python -m venv .venv
+
+#Activates created environment
 source .venv/Scripts/activate
 
-#Generates data into Data folder
+#Installs required python packages to new environment
+python -m pip install -r requirements.txt
+
+#Creates data used in all methods
+#Stores in Data folder
 python src/run_mlm_datapr.py -s $SEED
 
-#Runs MLM conf preds process:
-#Warning- Takes a very long time
+#Runs MLM conformal prediction process 5 times as reported in paper.
+#Takes several hours to complete.
 python src/run_mlm_bert.py -s $SEED
 
-#Processes results and produces graphs and report:
+#Processes results of MLM conformal prediction process.
+#Creates the information presetned in tables 3 & 4, and figures 9, 10 , 11
 python src/out_mlm.py
 
 ####################
