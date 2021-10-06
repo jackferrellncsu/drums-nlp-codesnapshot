@@ -153,7 +153,7 @@ for zzz in range(0,5):
     FINALRESULTS['Conf99'][zzz],FINALRESULTS['N99'][zzz],FINALRESULTS['PIS99'][zzz],FINALRESULTS['ACDS99'][zzz] = confNPISACDS(pVals, trueLabels, .01)
     FINALRESULTS['Conf999'][zzz],FINALRESULTS['N999'][zzz], FINALRESULTS['PIS999'][zzz],FINALRESULTS['ACDS999'][zzz] = confNPISACDS(pVals, trueLabels, .001)
     FINALRESULTS['Conf95'][zzz],FINALRESULTS['N95'][zzz],FINALRESULTS['PIS95'][zzz],FINALRESULTS['ACDS95'][zzz] = confNPISACDS(pVals, trueLabels, .05)
-    FINALRESULTS.to_csv('RESULTS.csv')
+    FINALRESULTS.to_csv('out/out_bertpos_results/RESULTS.csv')
 
 #Saving for one-shot predictions function
 np.save("calib", flat_calib)
