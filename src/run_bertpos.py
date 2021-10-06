@@ -1,4 +1,4 @@
-from BERTPOS_functions import *
+from routine_bertpos import *
 
 Total_Raw = pandas.io.parsers.read_csv("brown_pos.csv")
 
