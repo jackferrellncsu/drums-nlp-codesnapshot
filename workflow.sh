@@ -34,3 +34,20 @@ julia --project=. src/run_blstm.jl
 # Figures 5, 6 and 7
 
 julia --project=. src/out_blstm.jl
+
+####################
+# Python 3.6 Enviroment
+source ".venv_pos/bin/activate"
+
+#Function used for following python files
+python src/routine_bertpos.py
+
+#This creates all 5 BERT models based on the 5 train test spilts (Days)
+#Saves all 5 models from our training labeled bert_taggeri.h5
+python src/run_bertpos.py
+
+#Calculates the calibration and p-values, give results or metrics and generates plots. (Hours)
+#Final Results in BPS section of the table is called RESULTS.CSV used in tables 1 & 2
+
+python src/BERT_out.py
+
