@@ -22,7 +22,7 @@ python src/run_mlm_bert.py -s $SEED
 
 #Processes results of MLM conformal prediction process.
 #Creates the information presetned in tables 3 & 4, and figures 9, 10 , 11
-python src/out_mlm.py -s $SEED
+python src/out_mlm.py
 
 ####################
 # The following line produces the trained BiLSTM model along with the results
@@ -38,6 +38,8 @@ julia --project=. src/out_blstm.jl
 ####################
 # Python 3.6 Enviroment
 source ".venv_pos/bin/activate"
+
+python -m pip install -r req_pos.txt
 
 #Function used for following python files
 python src/routine_bertpos.py
