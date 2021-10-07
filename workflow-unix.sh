@@ -7,7 +7,7 @@ SEED=0
 python -m venv .venv
 
 #Activates created environment
-source .venv/Scripts/activate
+source .venv/bin/activate
 
 #Installs required python packages to new environment
 python -m pip install -r requirements.txt
