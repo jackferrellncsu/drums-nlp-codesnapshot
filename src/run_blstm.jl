@@ -15,7 +15,10 @@ for i in 1:5
     # -------------------------- Dealing With Data -------------------------- #
 
     # Read in raw data
-    brown_raw = CSV.read("Data/brown_pos.csv", DataFrame)[!, i]
+    brown_raw = CSV.read("Data/brown_pos.csv", DataFrame)[!, 1]
+
+    # THIS CODE IS ONLY FOR SCALING DOWN PROCESS TO RUN FASTER
+    brown_raw = brown_raw[1:200]
 
     # Splits words in each sentence
     raw_sentences = split.(brown_raw, " ")
@@ -38,13 +41,22 @@ for i in 1:5
     # Creates onehot vectors for every word in every sentence, regarding the POS
     onehot_vec = get_onehot(unique_pos, sentence_tags)
 
-    # Train/Test/Calib Split
+    #= Train/Test/Calib Split For Regular Splits
     train = sent_vec[1:45872]
     train_class = onehot_vec[1:45872]
     test = sent_vec[45873:51606]
     test_class = onehot_vec[45873:51606]
     calib = sent_vec[51607:end]
     calib_class = onehot_vec[51607:end]
+    =#
+
+    # Train/Test/Calib Split For SCALED DOWN Splits
+    train = sent_vec[1:160]
+    train_class = onehot_vec[1:160]
+    test = sent_vec[161:180]
+    test_class = onehot_vec[161:180]
+    calib = sent_vec[181:end]
+    calib_class = onehot_vec[181:end]
 
     # Creates DataLoader classes
     dl_calib = Flux.Data.DataLoader((calib, calib_class))
@@ -57,7 +69,8 @@ for i in 1:5
     # Model Architecture
     forward = LSTM(300, 150)
     backward = LSTM(300, 150)
-    predictor =  Chain(Dense(300, 250, relu), Dense(250, 190, x->x), softmax)
+    predictor =  Chain(Dense(300, 250, relu), Dense(250, length(unique_pos),
+                                                                x->x), softmax)
 
     function BiLSTM(x)
         Flux.reset!(forward)
