@@ -22,7 +22,7 @@ python src/run_mlm_bert.py -s $SEED
 
 #Processes results of MLM conformal prediction process.
 #Creates the information presetned in tables 3 & 4, and figures 9, 10 , 11
-python src/out_mlm.py
+python src/out_mlm.py -s $SEED
 
 ####################
 # The following line produces the trained BiLSTM model along with the results

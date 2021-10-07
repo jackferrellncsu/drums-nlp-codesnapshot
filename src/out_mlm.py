@@ -9,7 +9,7 @@ import sys, getopt
 seed = helper.command_line_seed(sys.argv[1:])
 result_objs = []
 
-for i in range(5):
+for i in range(1):
     with open(f"out/out_mlm_results/results_{seed}_{i}.pkl", "rb") as file:
         
         result = pickle.load(file)

@@ -30,11 +30,11 @@ softmax = Softmax(dim=0)
 
 result_objs = []
 
-for i in range(5):
+for i in range(1):
 
     print(f"Begin Loop: {i}")
     train_cal, test = train_test_split(brown_data, test_size=0.25, shuffle=True)
-    train, cal = train_test_split(train_cal, test_size=0.03, shuffle=True)
+    train, cal = train_test_split(train_cal, test_size=0.001, shuffle=True)
     train_cal = None
     train = None
 
@@ -49,7 +49,7 @@ for i in range(5):
     alphas_soft = []
 
     print("Generating Alphas:")
-    for j in range(len(cal_clean_sents)):
+    for j in range(len(cal_clean_sents[0:5])):
         input = tokenizer(cal_clean_sents[j], return_tensors = "pt", max_length=256, truncation=True, padding="max_length")
         input["labels"] = input.input_ids.detach().clone()
         helper.mask_data(input, [cal_mask_inds[j]])
@@ -65,7 +65,7 @@ for i in range(5):
         true_index = input.labels[0][cal_mask_inds[j]]
 
         alphas_soft.append(1-soft_true)
-        if j % 100 == 0:
+        if j % 1 == 0:
             print(j)
 
     #-----------------------------Working with conformal predictions-------------------------------------------------------#
@@ -106,7 +106,8 @@ for i in range(5):
     p_vals_false = 0
     creds = 0
 
-    for k in range(len(test_clean_sents[0:1000])):
+    print("Constructing Intervals:")
+    for k in range(len(test_clean_sents[0:10])):
         input = tokenizer(test_clean_sents[k], return_tensors = "pt", max_length=128, truncation=True, padding="max_length")
         input["labels"] = input.input_ids.detach().clone()
         helper.mask_data(input, [test_mask_inds[k]])
@@ -172,7 +173,7 @@ for i in range(5):
 
         true_inds.append(true_ind)
 
-        if k % 100 == 0:
+        if k % 1 == 0:
             print(k)
 
     results = {}
