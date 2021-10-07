@@ -25,14 +25,15 @@ FINALRESULTS = pandas.DataFrame(DD)
 for zzz in range(0,5):
     #imporing and cleaning data
     Data = Total_Raw['Shuffle' + str(zzz+1)]
-    '''
-    train_sentences = reformatRaw(np.array(Data[:2]))
-    calib_sentences = reformatRaw(np.array(Data[2: 4]))
-    test_sentences = reformatRaw(np.array(Data[4:6]))
+    
+    train_sentences = reformatRaw(np.array(Data[:16]))
+    calib_sentences = reformatRaw(np.array(Data[[16: 32]))
+    test_sentences = reformatRaw(np.array(Data[32:48]))
     '''
     train_sentences = reformatRaw(np.array(Data[:45872]))
     calib_sentences = reformatRaw(np.array(Data[45872: 51606]))
     test_sentences = reformatRaw(np.array(Data[51606:]))
+    '''
 
     #Creating set of tags for output vector
     tags = set([item for sublist in train_sentences+calib_sentences+test_sentences for _, item in sublist])
