@@ -1,6 +1,6 @@
 from routine_bertpos import *
 
-Total_Raw = pandas.io.parsers.read_csv("brown_pos.csv")
+Total_Raw = pandas.io.parsers.read_csv("Data/brown_pos_bert.csv")
 
 for zzz in range(5):
     #imporing and cleaning data
