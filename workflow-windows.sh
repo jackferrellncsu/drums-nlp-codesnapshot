@@ -1,5 +1,5 @@
 #!/bin/sh
-SEED=0
+SEED=1738
 
 #All python dependencies may be found in requirement.txt
 #All julia dependencies may be foind in Manifest.toml
@@ -37,7 +37,12 @@ julia --project=. src/out_blstm.jl
 
 ####################
 # Python 3.6 Enviroment
+python -m venv .venv_pos
+
+
 source ".venv_pos/Scripts/activate"
+
+python -m pip install -r req_pos.txt
 
 #Function used for following python files
 python src/routine_bertpos.py
