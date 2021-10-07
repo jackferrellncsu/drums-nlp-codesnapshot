@@ -77,7 +77,7 @@ for zzz in range(5):
 
     t_ini = datetime.datetime.now()
 
-    cp = ModelCheckpoint(filepath=("bert_taggerNR" + str(zzz)  + ".h5"),
+    cp = ModelCheckpoint(filepath=("bert_tagger" + str(zzz)  + ".h5"),
                          monitor='val_acc',
                          save_best_only=True,
                          save_weights_only=True,

@@ -93,7 +93,7 @@ for zzz in range(0,5):
 
     initialize_vars(sess)
     # Reloading Weights into Model
-    model.load_weights('bert_taggerNR' + str(zzz) + '.h5')
+    model.load_weights('bert_tagger' + str(zzz) + '.h5')
 
     y_pred_calib = []
     y_true_calib = []
@@ -154,10 +154,6 @@ for zzz in range(0,5):
     FINALRESULTS['Conf999'][zzz],FINALRESULTS['N999'][zzz], FINALRESULTS['PIS999'][zzz],FINALRESULTS['ACDS999'][zzz] = confNPISACDS(pVals, trueLabels, .001)
     FINALRESULTS['Conf95'][zzz],FINALRESULTS['N95'][zzz],FINALRESULTS['PIS95'][zzz],FINALRESULTS['ACDS95'][zzz] = confNPISACDS(pVals, trueLabels, .05)
     FINALRESULTS.to_csv('out/out_bertpos_results/RESULTS.csv')
-
-#Saving for one-shot predictions function
-np.save("calib", flat_calib)
-np.save("tags", list(tags))
 
 #Distribution of prediction set sizes
 NSIZES = intervalDist(pVals, .01)
