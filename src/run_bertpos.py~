@@ -1,5 +1,5 @@
 from routine_bertpos import *
-#test
+
 Total_Raw = pandas.io.parsers.read_csv("brown_pos.csv")
 
 for zzz in range(5):
