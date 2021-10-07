@@ -26,12 +26,13 @@ python src/out_mlm.py -s $SEED
 
 ####################
 # The following line produces the trained BiLSTM model along with the results
-# from testing the model on 5 different train/test splits (6-8 hours runtime)
+# from testing the model on 5 different train/test splits (6-8 hours runtime).
+# NOTE: Julia v1.6 is necessary in order to run the following 2 lines of code.
 
 julia --project=. src/run_blstm.jl
 
 # The following line produces the "BiLSTM" portions of Tables 1 & 2, as well as
-# Figures 5, 6 and 7
+# Figures 5, 6 and 7.
 
 julia --project=. src/out_blstm.jl
 
@@ -55,4 +56,3 @@ python src/run_bertpos.py
 #Final Results in BPS section of the table is called RESULTS.CSV used in tables 1 & 2
 
 python src/BERT_out.py
-
