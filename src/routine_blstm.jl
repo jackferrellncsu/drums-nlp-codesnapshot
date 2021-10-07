@@ -1,5 +1,8 @@
 # -------------------- Importing all necessary packages -------------------- #
 
+using Pkg
+Pkg.instantiate()
+
 using JLD
 using LinearAlgebra
 using Statistics
