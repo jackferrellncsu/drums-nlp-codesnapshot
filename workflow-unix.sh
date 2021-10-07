@@ -41,6 +41,8 @@ python -m venv .venv_pos
 
 source ".venv_pos/bin/activate"
 
+python -m pip install --upgrade pip setuptools
+
 python -m pip install -r req_pos.txt
 
 #Function used for following python files
@@ -53,5 +55,5 @@ python src/run_bertpos.py
 #Calculates the calibration and p-values, give results or metrics and generates plots. (Hours)
 #Final Results in BPS section of the table is called RESULTS.CSV used in tables 1 & 2
 
-python src/BERT_out.py
+python src/out_bertpos.py
 

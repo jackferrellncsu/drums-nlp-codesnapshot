@@ -1,13 +1,13 @@
 from routine_bertpos import *
 
-Total_Raw = pandas.io.parsers.read_csv("brown_pos.csv")
+Total_Raw = pandas.io.parsers.read_csv("Data/brown_pos.csv")
 
 for zzz in range(5):
     #imporing and cleaning data
     Data = Total_Raw['Shuffle' + str(zzz+1)]
 
     train_sentences = reformatRaw(np.array(Data[:16]))
-    calib_sentences = reformatRaw(np.array(Data[[16: 32]))
+    calib_sentences = reformatRaw(np.array(Data[16:32]))
     test_sentences = reformatRaw(np.array(Data[32:48]))
     '''
     train_sentences = reformatRaw(np.array(Data[:45872]))
