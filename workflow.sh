@@ -39,6 +39,8 @@ julia --project=. src/out_blstm.jl
 # Python 3.6 Enviroment
 source ".venv_pos/bin/activate"
 
+python -m pip install -r req_pos.txt
+
 #Function used for following python files
 python src/routine_bertpos.py
 
