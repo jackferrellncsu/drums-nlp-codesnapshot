@@ -1,0 +1,16 @@
+Median Set Size 95%: 1.0
+Median Set Size 90%: 1.0
+Median Set Size 80%: 1.0
+Median Set Size 75%: 0.5
+Mean Set Size 95%: 0.8
+Mean Set Size 90%: 0.7
+Mean Set Size 80%: 0.6
+Mean Set Size 75%: 0.5
+Average Empirical Confidence 95%: 0.6
+Average Empirical Confidence 90%: 0.5
+Average Empirical Confidence 80%: 0.5
+Average Empirical Confidence 75%: 0.5
+Average OP Score: 0.32
+Average OF Score: 0.0
+Average Classification Accuracy: 0.6
+Average Credibility: 0.36
