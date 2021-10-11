@@ -16,15 +16,6 @@ confs = get(plot_requirements, "confs", 0)
 sizes_99 = get(plot_requirements, "sizes_99", 0)
 sizes_999 = get(plot_requirements, "sizes_999", 0)
 
-#= Un-comment to write results to JSON file to get charts from python
-
-using JSON
-open("python_charts.json","w") do f
-    JSON.print(f, plot_requirements)
-end
-
-=#
-
 # ------------------------ Saving plots and figures ------------------------ #
 
 # Finds and plots the distribution of nonconformity scores

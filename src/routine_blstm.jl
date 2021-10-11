@@ -1,5 +1,24 @@
 # -------------------- Importing all necessary packages -------------------- #
 
+# Adding all necessary packages (correct versions)
+using Pkg
+Pkg.add(Pkg.PackageSpec(;name="JLD", version="0.12.3"))
+Pkg.add("LinearAlgebra")
+Pkg.add("Statistics")
+Pkg.add(Pkg.PackageSpec(;name="Embeddings", version="0.4.2"))
+Pkg.add(Pkg.PackageSpec(;name="Flux", version="0.12.1"))
+Pkg.add("Random")
+Pkg.add(Pkg.PackageSpec(;name="DataFrames", version="0.21.8"))
+Pkg.add(Pkg.PackageSpec(;name="Plots", version="0.29.9"))
+Pkg.add(Pkg.PackageSpec(;name="StatsBase", version="0.33.10"))
+Pkg.add(Pkg.PackageSpec(;name="BSON", version="0.3.3"))
+Pkg.add(Pkg.PackageSpec(;name="ProgressBars", version="1.4.0"))
+Pkg.add(Pkg.PackageSpec(;name="CSV", version="0.8.4"))
+Pkg.add(Pkg.PackageSpec(;name="TypedTables", version="1.4.0"))
+Pkg.add(Pkg.PackageSpec(;name="Zygote", version="0.6.12"))
+Pkg.add(Pkg.PackageSpec(;name="BisectPy", version="1.0.0"))
+
+# Package using statements
 using JLD
 using LinearAlgebra
 using Statistics
@@ -255,6 +274,7 @@ Reutrn pvals (Array{Any,1}) - P-values for every possible POS in each words
 """
 function get_pvals(test, test_class, model, α_i)
 
+    #=
     test_flat = []
     for sent in test
         for word in sent
@@ -268,6 +288,7 @@ function get_pvals(test, test_class, model, α_i)
             push!(test_class_flat, word)
         end
     end
+    =#
 
     correct_onehot = []
     pvals = []
@@ -412,7 +433,7 @@ function find_OP_OF(pvals, act_pos)
     end
 
     OP = mean(dot.(p,a))
-    OF = mean(dot.(p, notVec.(a)) / length(p[1]))
+    OF = (mean(dot.(p, notVec.(a)) / (length(p[1])))) * 190
     return OP, OF
 end
 
