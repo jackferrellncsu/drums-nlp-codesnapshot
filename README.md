@@ -1,4 +1,1 @@
-# drums-nlp-codesnapshot
-Final repository for research paper
-
-MLM output files are organized as {filename}_{seed}_{iteration}
+This repository contains the code for producing the results presented in the article ``Conformal prediction for text infill and part-of-speech prediction''.  The file `workflow-unix.sh' contains the line-by-line Unix code that can be used to reproduce the results.
