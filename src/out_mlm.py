@@ -141,9 +141,8 @@ x2 = [.75, .8, .9, .95]
 y2 = [.75, .8, .9, .95]
 xi = list(range(len(x1)))
 fig2 = plt
-fig2.plot(x1, y1, label = "Empirical")
-fig2.plot(x2, y2, label = "Nominal")
-fig2.legend()
+fig2.plot(x1, y1, "-k")
+fig2.plot(x2, y2, "--k")
 fig2_name = f"out/out_mlm_results/empirical-proposed_{seed}.png"
 fig2.savefig(fig2_name)
 fig2.close()
