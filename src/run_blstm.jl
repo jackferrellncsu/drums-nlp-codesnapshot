@@ -152,15 +152,6 @@ for i in 1:5
 
 end
 
-#= Remove comment if data is needed
-
-file_res = JLD.load("5split_output.jld")
-results = file_res["results"]
-all_nonconf = file_res["all_nonconf"]
-nom_conf = file_res["nom_conf"]
-
-=#
-
 # --------------------- Preparing results for out file --------------------- #
 
 # Loads in criterion and set size results from training and testing loop
