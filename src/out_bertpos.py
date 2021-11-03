@@ -159,7 +159,7 @@ for zzz in range(0,5):
 
 #Distribution of prediction set sizes
 NSIZES = intervalDist(pVals, .01)
-mpl.hist(NSIZES, bins = range(0,max(NSIZES)+1), color = 'red')
+mpl.hist(NSIZES, bins = range(0,max(NSIZES)+1), edgecolor = 'black', color = 'white')
 mpl.xlim((0,max(NSIZES)))
 mpl.xticks([0,5,10,15])
 mpl.savefig("out/out_bertpos_results/PredSets99.png")
@@ -173,14 +173,14 @@ for i in tqdm(range(1, 100)):
     nomconf.append(1- i/100)
     empconf.append(confNPISACDS(pVals, trueLabels, i/100)[0])
 
-mpl.plot(nomconf, empconf, label = "BERT")
-mpl.plot(np.array(range(1,100))/100, np.array(range(1,100))/100, label = "Nominal")
+mpl.plot(nomconf, empconf, color = 'black')
+mpl.plot(np.array(range(1,100))/100, np.array(range(1,100))/100, color = 'black', linestyle = 'dashed')
 mpl.savefig("out/out_bertpos_results/NominalVEmpirical.png")
 
 mpl.close()
 
 #Distribution of Non-Conformity Scores
-mpl.hist(flat_calib, color = 'red', bins = int(np.sqrt(len(flat_calib))))
+mpl.hist(flat_calib, edgecolor = 'black', color = 'white', bins = int(np.sqrt(len(flat_calib))/7.5))
 mpl.savefig("out/out_bertpos_results/NonConfHist.png")
 
 mpl.close()
