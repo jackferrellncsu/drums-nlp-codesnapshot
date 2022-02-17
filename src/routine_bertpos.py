@@ -57,6 +57,10 @@ def reformatRaw(array):
         sentences[i] = tempsent
     return sentences
 
+'''
+https://github.com/soutsios/pos-tagger-bert for structue/outline of code for processing and model implementation.
+'''
+
 def tag_sequence(sentences):
     '''
     Grabs the tags from the tuple sentence and outputs an array of POS tags
@@ -444,5 +448,3 @@ def intervalDist(pVals, epsilon):
         allInts.append(len(makeIntervals(p, epsilon)))
 
     return allInts
-
-
