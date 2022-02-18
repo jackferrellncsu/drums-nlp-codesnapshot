@@ -1,3 +1,5 @@
+#Code within !!! is adopted from https://github.com/soutsios/pos-tagger-bert
+
 from routine_bertpos import *
 
 Total_Raw = pandas.io.parsers.read_csv("Data/brown_pos_bert.csv")
@@ -34,6 +36,8 @@ for zzz in range(0,5):
     calib_sentences = reformatRaw(np.array(Data[45872: 51606]))
     test_sentences = reformatRaw(np.array(Data[51606:]))
 
+    #!!!
+    
     #Creating set of tags for output vector
     tags = set([item for sublist in train_sentences+calib_sentences+test_sentences for _, item in sublist])
 
@@ -58,6 +62,8 @@ for zzz in range(0,5):
     calib_sentences = split(calib_sentences, M)
     test_sentences = split(test_sentences, M)
 
+    #!!!
+    
     tf.compat.v1.disable_eager_execution()
     sess = tf.compat.v1.Session()
     # Params for bert model and tokenization
