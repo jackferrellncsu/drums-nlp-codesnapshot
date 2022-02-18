@@ -1,3 +1,5 @@
+#The code for training the BERT POS model is adopted from https://github.com/soutsios/pos-tagger-bert
+
 from routine_bertpos import *
 
 Total_Raw = pandas.io.parsers.read_csv("Data/brown_pos_bert.csv")
