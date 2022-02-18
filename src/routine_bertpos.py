@@ -1,3 +1,5 @@
+#Function with !!! indication is adopted from https://github.com/soutsios/pos-tagger-bert
+
 import datetime
 import nltk
 import tensorflow.keras as keras
@@ -57,24 +59,23 @@ def reformatRaw(array):
         sentences[i] = tempsent
     return sentences
 
-'''
-https://github.com/soutsios/pos-tagger-bert for structue/outline of code for processing and model implementation.
-'''
-
 def tag_sequence(sentences):
     '''
+    !!!
     Grabs the tags from the tuple sentence and outputs an array of POS tags
     '''
     return [[t for w, t in sentence] for sentence in sentences]
 
 def text_sequence(sentences):
     '''
+    !!!
     Grabs the words from the tuple sentence and outputs an array of words
     '''
     return [[w for w, t in sentence] for sentence in sentences]
 
 def  split(sentences, max):
     '''
+    !!!
     Splitting sentences that are to long into sentences of length max
     '''
     new=[]
@@ -90,6 +91,7 @@ class PaddedExample(object):
 
 class InputExample(object):
     '''
+    !!!
     A single training/test example for simple sequence classification.
     '''
 
@@ -111,6 +113,7 @@ class InputExample(object):
 
 def convert_single_example(tokenizer, example, tag2int, max_seq_length=256):
     '''
+    !!!
     :param tokenizer: The tokenizer from tensorflow hub
     :param example: the input example
     :param tag2int: dictionary which maps tags => indexes
@@ -169,6 +172,7 @@ def convert_single_example(tokenizer, example, tag2int, max_seq_length=256):
 
 def convert_examples_to_features(tokenizer, examples, tag2int, max_seq_length=256):
     '''
+    !!!
     :param tokenizer: The tokenizer from tensorflow hub
     :param example: vector of input examples
     :param tag2int: dictionary which maps tags => indexes
@@ -197,7 +201,7 @@ def convert_examples_to_features(tokenizer, examples, tag2int, max_seq_length=25
 
 def convert_text_to_examples(texts, labels):
     '''
-
+    !!!
     :param texts: the vector of vectors of words
     :param labels: the vector of vectors of POS tags
     :return: Training data for BERT
@@ -212,7 +216,7 @@ def convert_text_to_examples(texts, labels):
 
 
 class BertLayer(layers.Layer):
-
+    #!!!
     def __init__(self, output_representation='sequence_output', trainable=True, **kwargs):
         '''
 
@@ -267,7 +271,7 @@ class BertLayer(layers.Layer):
 
 def build_model(max_seq_length, n_tags):
     '''
-
+    !!!
     :param max_seq_length: The maximum sequence length
     :param n_tags: the number of types of POS tags
     :return: the Keras model
@@ -299,7 +303,7 @@ def build_model(max_seq_length, n_tags):
 
 def create_tokenizer_from_hub_module(sess):
     '''
-
+    !!!
     :return: The tokenizer from the BERT uncased model saved in the local directory HUB
     '''
 
@@ -316,7 +320,7 @@ def create_tokenizer_from_hub_module(sess):
 
 def initialize_vars(sess):
     '''
-
+    !!!
     Initializing Tensorflow Session
     '''
     sess.run(tf.local_variables_initializer())
